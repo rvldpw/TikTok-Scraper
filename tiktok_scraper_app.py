@@ -14,116 +14,218 @@ ACTOR_ID = "clockworks/tiktok-scraper"
 # ── Custom CSS ──────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'DM Sans', sans-serif;
-    background-color: #0a0a0a;
-    color: #f0f0f0;
+*, html, body, [class*="css"] {
+    font-family: 'IBM Plex Sans', sans-serif !important;
+    background-color: #080808;
+    color: #e8e8e8;
+    box-sizing: border-box;
 }
+
+/* ── Sidebar ── */
 section[data-testid="stSidebar"] {
-    background-color: #111111 !important;
-    border-right: 1px solid #1e1e1e;
+    background-color: #0e0e0e !important;
+    border-right: 1px solid #1c1c1c !important;
+    min-width: 280px !important;
+    max-width: 320px !important;
 }
-section[data-testid="stSidebar"] > div { padding: 1.5rem 1rem; }
+section[data-testid="stSidebar"] > div { padding: 1.2rem 1rem !important; }
 
-.tt-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.03em;
+/* ── Header ── */
+.scout-logo {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.5rem; font-weight: 700;
+    color: #fff; letter-spacing: -0.03em;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 2px;
 }
-.tt-badge {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    background: #fe2c55;
-    color: #fff;
-    padding: 3px 10px;
-    border-radius: 2px;
-    text-transform: uppercase;
-    vertical-align: middle;
-    margin-left: 10px;
+.scout-dot { color: #fe2c55; }
+.scout-version {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem; letter-spacing: 0.14em;
+    color: #2a2a2a; text-transform: uppercase;
+    margin-bottom: 1.2rem;
 }
-.tt-sub { font-size: 0.82rem; color: #555; margin-bottom: 2rem; font-weight: 300; }
 .section-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    color: #444;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    margin-top: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.14em;
+    color: #333; text-transform: uppercase;
+    margin: 14px 0 5px 0;
 }
-.actor-pill {
-    display: inline-block;
-    background: #141414;
-    border: 1px solid #222;
-    color: #555;
-    font-size: 0.65rem;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-family: 'Space Mono', monospace;
-    margin-bottom: 1.5rem;
-}
-.metric-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-.metric-card {
-    flex: 1; min-width: 110px;
-    background: #141414; border: 1px solid #1e1e1e;
-    border-radius: 6px; padding: 12px 16px;
-}
-.metric-label {
-    font-size: 0.62rem; font-family: 'Space Mono', monospace;
-    letter-spacing: 0.08em; color: #444; text-transform: uppercase; margin-bottom: 4px;
-}
-.metric-value { font-size: 1.4rem; font-weight: 600; color: #f0f0f0; font-family: 'Space Mono', monospace; }
-.metric-accent { color: #fe2c55; }
 
-.profile-card {
-    background: #111; border: 1px solid #1e1e1e;
-    border-radius: 8px; padding: 16px 18px; margin-bottom: 10px;
-    transition: border-color 0.15s;
+/* ── Range group ── */
+.range-group {
+    background: #111; border: 1px solid #1c1c1c;
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
 }
-.profile-card:hover { border-color: #fe2c55; }
-.profile-handle { font-family: 'Space Mono', monospace; font-size: 0.88rem; color: #fe2c55; font-weight: 700; }
-.profile-name   { font-size: 0.82rem; color: #888; margin-bottom: 6px; }
-.profile-bio {
-    font-size: 0.78rem; color: #666; line-height: 1.5;
-    border-left: 2px solid #1e1e1e; padding-left: 10px;
-    margin: 8px 0; font-style: italic;
+.range-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.12em;
+    color: #444; text-transform: uppercase; margin-bottom: 8px;
 }
-.profile-stats {
-    display: flex; gap: 16px; font-size: 0.75rem; color: #555;
-    font-family: 'Space Mono', monospace; margin-top: 8px; flex-wrap: wrap;
+
+/* ── Metrics ── */
+.metrics-strip {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 1.2rem;
 }
-.stat-item { display: flex; flex-direction: column; gap: 2px; }
-.stat-val   { color: #ddd; font-size: 0.85rem; }
-.kw-tag {
-    display: inline-block; background: rgba(254,44,85,0.1);
-    border: 1px solid rgba(254,44,85,0.25); color: #fe2c55;
-    font-size: 0.67rem; padding: 2px 7px; border-radius: 2px;
-    font-family: 'Space Mono', monospace; margin-right: 4px; margin-top: 6px;
+.m-card {
+    flex: 1; min-width: 100px;
+    background: #0e0e0e; border: 1px solid #1c1c1c;
+    border-radius: 6px; padding: 10px 14px;
 }
-.stButton > button {
-    background: #fe2c55 !important; color: #fff !important; border: none !important;
-    border-radius: 4px !important; font-family: 'Space Mono', monospace !important;
-    font-size: 0.75rem !important; letter-spacing: 0.08em !important; width: 100%;
-    transition: opacity 0.15s !important;
+.m-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem; letter-spacing: 0.1em;
+    color: #333; text-transform: uppercase; margin-bottom: 4px;
 }
-.stButton > button:hover { opacity: 0.82 !important; }
+.m-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.25rem; font-weight: 600; color: #e8e8e8;
+}
+.m-val.red { color: #fe2c55; }
+
+/* ── Profile cards ── */
+.p-card {
+    background: #0e0e0e; border: 1px solid #1a1a1a;
+    border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+    transition: border-color 0.15s, transform 0.1s;
+}
+.p-card:hover { border-color: #fe2c55; transform: translateY(-1px); }
+.p-handle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem; color: #fe2c55; font-weight: 700;
+}
+.p-name { font-size: 0.8rem; color: #555; margin-bottom: 5px; }
+.p-bio {
+    font-size: 0.77rem; color: #555; line-height: 1.55;
+    border-left: 2px solid #1a1a1a; padding-left: 9px;
+    margin: 7px 0; font-style: italic;
+}
+.p-stats {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; margin-top: 9px;
+}
+.p-stat-label { font-size: 0.56rem; color: #2e2e2e; letter-spacing: 0.1em; display: block; }
+.p-stat-val   { color: #ccc; font-size: 0.82rem; }
+.kw-chip {
+    display: inline-block; background: rgba(254,44,85,0.08);
+    border: 1px solid rgba(254,44,85,0.2); color: #fe2c55;
+    font-size: 0.62rem; padding: 2px 6px; border-radius: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-right: 3px; margin-top: 5px;
+}
+.verified-badge { color: #25d4d0; font-size: 0.65rem; margin-left: 5px; }
+
+/* ── Empty state ── */
+.empty-state {
+    text-align: center; padding: 70px 0 50px;
+}
+.empty-icon { font-size: 2.8rem; margin-bottom: 12px; }
+.empty-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem; color: #1e1e1e; margin-bottom: 8px;
+    letter-spacing: 0.12em;
+}
+.empty-hint { font-size: 0.78rem; color: #2a2a2a; line-height: 1.8; }
+
+/* ── Inputs ── */
 .stTextInput > div > div > input,
 .stNumberInput > div > div > input,
-.stTextArea textarea {
-    background: #141414 !important; border: 1px solid #222 !important;
-    color: #f0f0f0 !important; border-radius: 4px !important;
+.stTextArea textarea,
+.stSelectbox > div > div {
+    background: #111 !important; border: 1px solid #1e1e1e !important;
+    color: #e8e8e8 !important; border-radius: 4px !important;
+    font-family: 'IBM Plex Sans', sans-serif !important;
 }
 .stTextInput > div > div > input:focus,
 .stTextArea textarea:focus {
     border-color: #fe2c55 !important;
-    box-shadow: 0 0 0 1px rgba(254,44,85,0.15) !important;
+    box-shadow: 0 0 0 1px rgba(254,44,85,0.12) !important;
 }
-hr { border-color: #1a1a1a !important; }
+.stNumberInput button {
+    background: #1a1a1a !important; border: 1px solid #222 !important;
+    color: #888 !important;
+}
+
+/* ── Buttons ── */
+.stButton > button {
+    background: #fe2c55 !important; color: #fff !important;
+    border: none !important; border-radius: 4px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.72rem !important; letter-spacing: 0.1em !important;
+    width: 100%; padding: 0.55rem 1rem !important;
+    transition: opacity 0.15s, transform 0.1s !important;
+}
+.stButton > button:hover { opacity: 0.85 !important; transform: translateY(-1px) !important; }
+.stButton > button:active { transform: translateY(0) !important; }
+
+/* ── Download button ── */
+.stDownloadButton > button {
+    background: #111 !important; color: #888 !important;
+    border: 1px solid #1e1e1e !important; border-radius: 4px !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.68rem !important; letter-spacing: 0.08em !important;
+    width: 100%; transition: border-color 0.15s !important;
+}
+.stDownloadButton > button:hover { border-color: #555 !important; color: #ccc !important; }
+
+/* ── Radio ── */
+.stRadio > div { gap: 6px !important; }
+.stRadio > div > label {
+    background: #111 !important; border: 1px solid #1e1e1e !important;
+    border-radius: 4px !important; padding: 5px 12px !important;
+    font-size: 0.76rem !important; cursor: pointer;
+    transition: border-color 0.1s !important;
+}
+.stRadio > div > label:has(input:checked) {
+    border-color: #fe2c55 !important; color: #fe2c55 !important;
+}
+
+/* ── Divider ── */
+hr { border-color: #141414 !important; margin: 12px 0 !important; }
+
+/* ── Tabs ── */
+.stTabs [data-baseweb="tab-list"] {
+    background: transparent !important; gap: 4px;
+    border-bottom: 1px solid #1a1a1a !important;
+}
+.stTabs [data-baseweb="tab"] {
+    background: transparent !important; color: #333 !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.68rem !important; letter-spacing: 0.1em !important;
+    border-radius: 4px 4px 0 0 !important;
+    padding: 6px 14px !important;
+}
+.stTabs [aria-selected="true"] {
+    color: #fe2c55 !important;
+    border-bottom: 2px solid #fe2c55 !important;
+}
+
+/* ── Tooltip / info box ── */
+.info-box {
+    background: #0e0e0e; border: 1px solid #1c1c1c;
+    border-left: 3px solid #fe2c55;
+    border-radius: 4px; padding: 8px 12px;
+    font-size: 0.74rem; color: #444; line-height: 1.6;
+    margin: 8px 0;
+}
+
+/* ── Mobile tweaks ── */
+@media (max-width: 640px) {
+    .metrics-strip { gap: 6px; }
+    .m-card { min-width: 80px; padding: 8px 10px; }
+    .m-val { font-size: 1rem; }
+    section[data-testid="stSidebar"] {
+        min-width: 100% !important; max-width: 100% !important;
+    }
+    .p-stats { gap: 10px; }
+}
+
+/* ── Dataframe ── */
+.stDataFrame { border: 1px solid #1a1a1a !important; border-radius: 6px !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -147,45 +249,69 @@ def parse_profile(item: dict) -> dict:
     a = item.get("authorMeta") or item.get("author") or {}
     if not isinstance(a, dict):
         a = {}
-    handle   = a.get("name") or a.get("uniqueId") or item.get("name") or item.get("uniqueId") or ""
-    nickname = a.get("nickName") or a.get("nickname") or item.get("nickName") or ""
-    bio      = a.get("signature") or a.get("description") or item.get("signature") or ""
-    followers= int(a.get("fans") or a.get("followerCount") or item.get("fans") or 0)
-    following= int(a.get("following") or a.get("followingCount") or item.get("following") or 0)
-    likes    = int(a.get("heart") or a.get("heartCount") or item.get("heart") or 0)
-    videos   = int(a.get("video") or a.get("videoCount") or item.get("video") or 0)
-    verified = bool(a.get("verified") or item.get("verified") or False)
-    caption  = item.get("text") or item.get("desc") or ""
+
+    handle    = a.get("name") or a.get("uniqueId") or item.get("name") or item.get("uniqueId") or ""
+    nickname  = a.get("nickName") or a.get("nickname") or item.get("nickName") or ""
+    bio       = a.get("signature") or a.get("description") or item.get("signature") or ""
+    followers = int(a.get("fans") or a.get("followerCount") or item.get("fans") or 0)
+    following = int(a.get("following") or a.get("followingCount") or item.get("following") or 0)
+    likes     = int(a.get("heart") or a.get("heartCount") or item.get("heart") or 0)
+    videos    = int(a.get("video") or a.get("videoCount") or item.get("video") or 0)
+    verified  = bool(a.get("verified") or item.get("verified") or False)
+    caption   = item.get("text") or item.get("desc") or ""
+
+    # Video-level stats (for min views filter)
+    play_count  = int(item.get("playCount") or item.get("stats", {}).get("playCount") or 0)
+    like_count  = int(item.get("diggCount") or item.get("stats", {}).get("diggCount") or 0)
+    share_count = int(item.get("shareCount") or item.get("stats", {}).get("shareCount") or 0)
+    comment_count = int(item.get("commentCount") or item.get("stats", {}).get("commentCount") or 0)
+
     return {
-        "handle":   handle,
-        "nickname": nickname,
-        "bio":      bio,
-        "caption":  caption,
-        "followers":followers,
-        "following":following,
-        "likes":    likes,
-        "videos":   videos,
-        "verified": verified,
-        "url":      f"https://www.tiktok.com/@{handle}" if handle else "",
+        "handle":        handle,
+        "nickname":      nickname,
+        "bio":           bio,
+        "caption":       caption,
+        "followers":     followers,
+        "following":     following,
+        "likes":         likes,
+        "videos":        videos,
+        "verified":      verified,
+        "play_count":    play_count,
+        "like_count":    like_count,
+        "share_count":   share_count,
+        "comment_count": comment_count,
+        "url":           f"https://www.tiktok.com/@{handle}" if handle else "",
     }
 
 def run_scraper(api_token: str, run_input: dict) -> list:
     try:
         from apify_client import ApifyClient
     except ImportError:
-        st.error("`apify-client` not installed. Run: pip install apify-client")
+        st.error("`apify-client` not installed. Run: `pip install apify-client`")
         return []
     client = ApifyClient(api_token)
     run    = client.actor(ACTOR_ID).call(run_input=run_input)
     return list(client.dataset(run["defaultDatasetId"]).iterate_items())
 
 
-# ── Sidebar ──────────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown('<div class="tt-title">TT Scout</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="actor-pill">⚙ {ACTOR_ID}</div>', unsafe_allow_html=True)
+# ── Session state defaults ────────────────────────────────────────────────────
+if "profiles" not in st.session_state:
+    st.session_state.profiles = []
+if "raw_count" not in st.session_state:
+    st.session_state.raw_count = 0
 
-    st.markdown('<div class="section-label">Apify API Token</div>', unsafe_allow_html=True)
+
+# ────────────────────────────────────────────────────────────────────────────────
+# SIDEBAR
+# ────────────────────────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("""
+    <div class="scout-logo">TT<span class="scout-dot">●</span>Scout</div>
+    <div class="scout-version">TikTok Creator Discovery Tool</div>
+    """, unsafe_allow_html=True)
+
+    # ── API Token ────────────────────────────────────────────────────────────
+    st.markdown('<div class="section-label">🔑 Apify API Token</div>', unsafe_allow_html=True)
     api_token = st.text_input(
         "token", type="password",
         placeholder="apify_api_xxxx…",
@@ -193,227 +319,362 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.markdown('<div class="section-label">Search Mode</div>', unsafe_allow_html=True)
+
+    # ── Search Mode ──────────────────────────────────────────────────────────
+    st.markdown('<div class="section-label">🔍 Search Mode</div>', unsafe_allow_html=True)
     mode = st.radio("mode",
                     ["Hashtag", "Profile usernames", "Search query"],
                     label_visibility="collapsed")
 
-    st.markdown("---")
-    num_videos = st.number_input("Videos to fetch per input",
-                                 min_value=10, max_value=1000, value=100, step=10)
-
     if mode == "Hashtag":
         st.markdown('<div class="section-label">Hashtags (one per line)</div>', unsafe_allow_html=True)
-        hashtags_raw = st.text_area("ht", placeholder="fyp\nbeauty\nskincare",
-                                    height=100, label_visibility="collapsed")
-
+        hashtags_raw = st.text_area("ht", placeholder="#fyp\n#beauty\n#skincare",
+                                    height=90, label_visibility="collapsed")
     elif mode == "Profile usernames":
         st.markdown('<div class="section-label">Usernames (one per line)</div>', unsafe_allow_html=True)
-        usernames_raw = st.text_area("un", placeholder="keishadayang\nandreazshow",
-                                     height=100, label_visibility="collapsed")
-
-    elif mode == "Search query":
-        st.markdown('<div class="section-label">Search query</div>', unsafe_allow_html=True)
+        usernames_raw = st.text_area("un", placeholder="@keishadayang\n@andreazshow",
+                                     height=90, label_visibility="collapsed")
+    else:
+        st.markdown('<div class="section-label">Search Query</div>', unsafe_allow_html=True)
         search_query = st.text_input("sq", placeholder="beauty review indonesia",
                                      label_visibility="collapsed")
 
     st.markdown("---")
-    st.markdown('<div class="section-label">Filters</div>', unsafe_allow_html=True)
-    min_followers = st.number_input("Min followers",
-                                    min_value=0, value=10_000, step=1_000, format="%d")
-    kw_scope  = st.selectbox("Match keywords in", ["Bio", "Post caption", "Bio + caption"])
+
+    # ── Fetch Limit (API cost control) ───────────────────────────────────────
+    st.markdown('<div class="section-label">⚡ Fetch Limit (API Cost Control)</div>', unsafe_allow_html=True)
+    st.markdown("""<div class="info-box">
+    Fewer videos = lower Apify cost. Start small (50–100) to test, scale up when needed.
+    </div>""", unsafe_allow_html=True)
+    num_videos = st.number_input("Videos to fetch per input",
+                                 min_value=10, max_value=2000, value=100, step=10,
+                                 label_visibility="visible")
+
+    st.markdown("---")
+
+    # ── Follower Filter ───────────────────────────────────────────────────────
+    st.markdown('<div class="section-label">👥 Follower Range</div>', unsafe_allow_html=True)
+    col_min, col_max = st.columns(2)
+    with col_min:
+        st.caption("Min")
+        min_followers = st.number_input("min_f", min_value=0, value=10_000,
+                                        step=1_000, format="%d",
+                                        label_visibility="collapsed")
+    with col_max:
+        st.caption("Max (0 = no limit)")
+        max_followers = st.number_input("max_f", min_value=0, value=0,
+                                        step=10_000, format="%d",
+                                        label_visibility="collapsed")
+
+    # ── Video Views Filter ────────────────────────────────────────────────────
+    st.markdown('<div class="section-label">▶ Min Video Views (per post)</div>', unsafe_allow_html=True)
+    min_views = st.number_input("min_views", min_value=0, value=0,
+                                step=1_000, format="%d",
+                                label_visibility="collapsed")
+
+    # ── Verified Filter ────────────────────────────────────────────────────────
+    only_verified = st.checkbox("✓ Verified accounts only", value=False)
+
+    st.markdown("---")
+
+    # ── Keyword Filters ───────────────────────────────────────────────────────
+    st.markdown('<div class="section-label">🏷 Keyword Filters</div>', unsafe_allow_html=True)
+    kw_scope = st.selectbox("Match keywords in",
+                            ["Bio", "Post caption", "Bio + caption"],
+                            label_visibility="visible")
     keywords_raw = st.text_input("Keywords (comma-separated)",
-                                 placeholder="beauty, skincare, review")
+                                 placeholder="beauty, skincare, review",
+                                 label_visibility="visible")
+    keywords = [k.strip() for k in keywords_raw.split(",") if k.strip()] if keywords_raw else []
 
     st.markdown("---")
     run_btn = st.button("▶  Run Scraper")
 
 
-# ── Main ─────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ────────────────────────────────────────────────────────────────────────────────
 st.markdown("""
-<div style="margin-bottom:0.2rem">
-  <span class="tt-title">TT Scout</span>
-  <span class="tt-badge">Live</span>
+<div style="margin-bottom:0.3rem;display:flex;align-items:center;gap:12px">
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:1.6rem;font-weight:700;color:#fff">
+    TT<span style="color:#fe2c55">●</span>Scout
+  </span>
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:0.58rem;letter-spacing:0.14em;
+    background:#fe2c55;color:#fff;padding:3px 9px;border-radius:2px">LIVE</span>
 </div>
-<div class="tt-sub">Discover TikTok creators by follower count &amp; keyword</div>
+<div style="font-size:0.8rem;color:#333;margin-bottom:1.5rem;font-weight:300">
+  Discover TikTok creators — filter by followers, views &amp; keywords
+</div>
 """, unsafe_allow_html=True)
 
-keywords = [k.strip() for k in keywords_raw.split(",") if k.strip()] if keywords_raw else []
-
-if "profiles" not in st.session_state:
-    st.session_state.profiles = []
 
 # ── Run ──────────────────────────────────────────────────────────────────────────
 if run_btn:
     if not api_token:
         st.error("Enter your Apify API token in the sidebar.")
+        st.stop()
+
+    run_input = {"resultsPerPage": num_videos}
+
+    if mode == "Hashtag":
+        tags = [t.strip().lstrip("#") for t in hashtags_raw.splitlines() if t.strip()]
+        if not tags:
+            st.warning("Enter at least one hashtag.")
+            st.stop()
+        run_input["hashtags"] = tags
+
+    elif mode == "Profile usernames":
+        users = [u.strip().lstrip("@") for u in usernames_raw.splitlines() if u.strip()]
+        if not users:
+            st.warning("Enter at least one username.")
+            st.stop()
+        run_input["profiles"] = [f"https://www.tiktok.com/@{u}" for u in users]
+
+    elif mode == "Search query":
+        if not search_query.strip():
+            st.warning("Enter a search query.")
+            st.stop()
+        run_input["searchQueries"] = [search_query.strip()]
+
+    with st.spinner(f"Scraping TikTok via Apify… (fetching up to {num_videos} videos)"):
+        raw_items = run_scraper(api_token, run_input)
+
+    if not raw_items:
+        st.warning("No results returned. Check your token or inputs.")
+        st.stop()
+
+    # Parse
+    parsed = [parse_profile(item) for item in raw_items]
+
+    # Deduplicate by handle
+    seen, unique = set(), []
+    for p in parsed:
+        if p["handle"] and p["handle"] not in seen:
+            seen.add(p["handle"])
+            unique.append(p)
+
+    # ── Apply filters ──────────────────────────────────────────────────────
+    filtered = unique
+
+    # Follower min
+    filtered = [p for p in filtered if p["followers"] >= min_followers]
+
+    # Follower max
+    if max_followers > 0:
+        filtered = [p for p in filtered if p["followers"] <= max_followers]
+
+    # Min views (any video from the scrape)
+    if min_views > 0:
+        filtered = [p for p in filtered if p["play_count"] >= min_views]
+
+    # Verified only
+    if only_verified:
+        filtered = [p for p in filtered if p["verified"]]
+
+    # Keyword filter
+    if keywords:
+        def passes_kw(p):
+            txt = ""
+            if kw_scope in ("Bio", "Bio + caption"):          txt += " " + p["bio"]
+            if kw_scope in ("Post caption", "Bio + caption"): txt += " " + p["caption"]
+            return bool(kw_match(txt, keywords))
+        filtered = [p for p in filtered if passes_kw(p)]
+
+    st.session_state.profiles  = filtered
+    st.session_state.raw_count = len(unique)
+
+    if filtered:
+        st.success(f"✓ **{len(filtered)}** creators matched from **{len(unique)}** unique accounts ({len(raw_items)} posts fetched)")
     else:
-        run_input = {"resultsPerPage": num_videos}
-
-        if mode == "Hashtag":
-            tags = [t.strip().lstrip("#") for t in hashtags_raw.splitlines() if t.strip()]
-            if not tags: st.warning("Enter at least one hashtag."); st.stop()
-            run_input["hashtags"] = tags
-
-        elif mode == "Profile usernames":
-            users = [u.strip().lstrip("@") for u in usernames_raw.splitlines() if u.strip()]
-            if not users: st.warning("Enter at least one username."); st.stop()
-            run_input["profiles"] = [f"https://www.tiktok.com/@{u}" for u in users]
-
-        elif mode == "Search query":
-            if not search_query.strip(): st.warning("Enter a search query."); st.stop()
-            run_input["searchQueries"] = [search_query.strip()]
-
-        with st.spinner(f"Running `{ACTOR_ID}` on Apify…"):
-            raw_items = run_scraper(api_token, run_input)
-
-        if not raw_items:
-            st.warning("No results returned. Check your token or inputs.")
-        else:
-            parsed = [parse_profile(item) for item in raw_items]
-
-            seen, unique = set(), []
-            for p in parsed:
-                if p["handle"] and p["handle"] not in seen:
-                    seen.add(p["handle"])
-                    unique.append(p)
-
-            filtered = [p for p in unique if p["followers"] >= min_followers]
-
-            if keywords:
-                def passes(p):
-                    txt = ""
-                    if kw_scope in ("Bio", "Bio + caption"):        txt += " " + p["bio"]
-                    if kw_scope in ("Post caption", "Bio + caption"): txt += " " + p["caption"]
-                    return bool(kw_match(txt, keywords))
-                filtered = [p for p in filtered if passes(p)]
-
-            st.session_state.profiles = filtered
-            st.success(f"**{len(filtered)}** profiles matched from **{len(unique)}** unique accounts.")
+        st.warning(f"No profiles matched your filters. ({len(unique)} unique accounts found — try loosening the filters.)")
 
 
 # ── Display ──────────────────────────────────────────────────────────────────────
-profiles = st.session_state.profiles
+profiles   = st.session_state.profiles
+raw_count  = st.session_state.raw_count
 
 if profiles:
     total_followers = sum(p["followers"] for p in profiles)
-    avg_followers   = total_followers // len(profiles)
+    avg_followers   = total_followers // max(len(profiles), 1)
     verified_count  = sum(1 for p in profiles if p["verified"])
+    total_views     = sum(p["play_count"] for p in profiles)
 
     st.markdown(f"""
-    <div class="metric-row">
-      <div class="metric-card"><div class="metric-label">Matched</div>
-        <div class="metric-value metric-accent">{len(profiles)}</div></div>
-      <div class="metric-card"><div class="metric-label">Total Followers</div>
-        <div class="metric-value">{fmt(total_followers)}</div></div>
-      <div class="metric-card"><div class="metric-label">Avg Followers</div>
-        <div class="metric-value">{fmt(avg_followers)}</div></div>
-      <div class="metric-card"><div class="metric-label">Verified</div>
-        <div class="metric-value">{verified_count}</div></div>
-      <div class="metric-card"><div class="metric-label">Min Filter</div>
-        <div class="metric-value">{fmt(min_followers)}</div></div>
+    <div class="metrics-strip">
+      <div class="m-card"><div class="m-label">Matched</div>
+        <div class="m-val red">{len(profiles)}</div></div>
+      <div class="m-card"><div class="m-label">Total Followers</div>
+        <div class="m-val">{fmt(total_followers)}</div></div>
+      <div class="m-card"><div class="m-label">Avg Followers</div>
+        <div class="m-val">{fmt(avg_followers)}</div></div>
+      <div class="m-card"><div class="m-label">Total Views</div>
+        <div class="m-val">{fmt(total_views)}</div></div>
+      <div class="m-card"><div class="m-label">Verified</div>
+        <div class="m-val">{verified_count}</div></div>
     </div>
     """, unsafe_allow_html=True)
 
+    # ── Controls row ──────────────────────────────────────────────────────
     c1, c2, c3 = st.columns([2, 2, 2])
     with c1:
-        sort_by = st.selectbox("Sort by", ["Followers ↓", "Followers ↑", "Likes ↓", "Videos ↓"])
+        sort_by = st.selectbox("Sort by", [
+            "Followers ↓", "Followers ↑",
+            "Likes ↓", "Videos ↓", "Views ↓"
+        ])
     with c2:
         view_mode = st.radio("View", ["Cards", "Table"], horizontal=True)
     with c3:
-        df_exp = pd.DataFrame([{k: p[k] for k in
-            ["handle","nickname","bio","followers","following","likes","videos","verified","url"]}
-            for p in profiles])
-        st.download_button("⬇  Export CSV",
+        df_exp = pd.DataFrame([{
+            "handle":        p["handle"],
+            "nickname":      p["nickname"],
+            "bio":           p["bio"],
+            "followers":     p["followers"],
+            "following":     p["following"],
+            "likes":         p["likes"],
+            "videos":        p["videos"],
+            "post_views":    p["play_count"],
+            "post_likes":    p["like_count"],
+            "post_shares":   p["share_count"],
+            "post_comments": p["comment_count"],
+            "verified":      p["verified"],
+            "url":           p["url"],
+        } for p in profiles])
+        st.download_button(
+            "⬇  Export CSV",
             data=df_exp.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
-            file_name="tiktok_profiles.csv", mime="text/csv")
+            file_name="tiktok_profiles.csv",
+            mime="text/csv",
+        )
 
-    sk, sr = {"Followers ↓":("followers",True),"Followers ↑":("followers",False),
-               "Likes ↓":("likes",True),"Videos ↓":("videos",True)}[sort_by]
+    sort_map = {
+        "Followers ↓": ("followers",  True),
+        "Followers ↑": ("followers",  False),
+        "Likes ↓":     ("likes",      True),
+        "Videos ↓":    ("videos",     True),
+        "Views ↓":     ("play_count", True),
+    }
+    sk, sr   = sort_map[sort_by]
     sorted_p = sorted(profiles, key=lambda p: p[sk], reverse=sr)
 
     st.markdown("---")
 
+    # ── Cards view ────────────────────────────────────────────────────────
     if view_mode == "Cards":
         for i in range(0, len(sorted_p), 2):
-            row = sorted_p[i:i+2]
+            row  = sorted_p[i:i+2]
             cols = st.columns(2)
             for col, p in zip(cols, row):
                 with col:
-                    bio_txt  = p["bio"] or "<em style='color:#2a2a2a'>No bio</em>"
-                    vbadge   = ' <span style="color:#25d4d0;font-size:0.68rem">✓</span>' if p["verified"] else ""
-                    tags_str = "".join(f'<span class="kw-tag">{k}</span>'
-                                      for k in kw_match(p["bio"]+" "+p["caption"], keywords))
+                    bio_txt  = p["bio"] or "<em style='color:#1e1e1e'>No bio</em>"
+                    vbadge   = '<span class="verified-badge">✓ verified</span>' if p["verified"] else ""
+                    tags_str = "".join(
+                        f'<span class="kw-chip">{k}</span>'
+                        for k in kw_match(p["bio"] + " " + p["caption"], keywords)
+                    )
+                    views_str = (
+                        f'<div class="stat-item"><span class="p-stat-label">POST VIEWS</span>'
+                        f'<span class="p-stat-val">{fmt(p["play_count"])}</span></div>'
+                        if p["play_count"] else ""
+                    )
                     st.markdown(f"""
-                    <div class="profile-card">
-                      <div class="profile-handle">@{p['handle']}{vbadge}</div>
-                      <div class="profile-name">{p['nickname']}</div>
-                      <div class="profile-bio">{bio_txt}</div>
+                    <div class="p-card">
+                      <div class="p-handle">@{p['handle']}{vbadge}</div>
+                      <div class="p-name">{p['nickname']}</div>
+                      <div class="p-bio">{bio_txt}</div>
                       <div>{tags_str}</div>
-                      <div class="profile-stats">
+                      <div class="p-stats">
                         <div class="stat-item">
-                          <span style="font-size:0.6rem;color:#333">FOLLOWERS</span>
-                          <span class="stat-val">{fmt(p['followers'])}</span>
+                          <span class="p-stat-label">FOLLOWERS</span>
+                          <span class="p-stat-val">{fmt(p['followers'])}</span>
                         </div>
                         <div class="stat-item">
-                          <span style="font-size:0.6rem;color:#333">LIKES</span>
-                          <span class="stat-val">{fmt(p['likes'])}</span>
+                          <span class="p-stat-label">LIKES</span>
+                          <span class="p-stat-val">{fmt(p['likes'])}</span>
                         </div>
                         <div class="stat-item">
-                          <span style="font-size:0.6rem;color:#333">VIDEOS</span>
-                          <span class="stat-val">{fmt(p['videos'])}</span>
+                          <span class="p-stat-label">VIDEOS</span>
+                          <span class="p-stat-val">{fmt(p['videos'])}</span>
                         </div>
                         <div class="stat-item">
-                          <span style="font-size:0.6rem;color:#333">FOLLOWING</span>
-                          <span class="stat-val">{fmt(p['following'])}</span>
+                          <span class="p-stat-label">FOLLOWING</span>
+                          <span class="p-stat-val">{fmt(p['following'])}</span>
                         </div>
+                        {views_str}
                       </div>
                       <div style="margin-top:10px">
                         <a href="{p['url']}" target="_blank"
-                           style="font-size:0.7rem;color:#333;text-decoration:none;
-                                  font-family:'Space Mono',monospace;">
+                           style="font-size:0.68rem;color:#2a2a2a;text-decoration:none;
+                                  font-family:'IBM Plex Mono',monospace;">
                           ↗ tiktok.com/@{p['handle']}
                         </a>
                       </div>
                     </div>
                     """, unsafe_allow_html=True)
+
+    # ── Table view ────────────────────────────────────────────────────────
     else:
         df_view = pd.DataFrame([{
-            "@handle":   "@"+p["handle"],
+            "@handle":   "@" + p["handle"],
             "name":      p["nickname"],
             "followers": p["followers"],
             "likes":     p["likes"],
             "videos":    p["videos"],
+            "post views":p["play_count"],
             "✓":         "✓" if p["verified"] else "",
-            "bio":       (p["bio"] or "")[:70]+("…" if len(p["bio"] or "")>70 else ""),
-            "url":       p["url"],
+            "bio":       (p["bio"] or "")[:60] + ("…" if len(p["bio"] or "") > 60 else ""),
+            "link":      p["url"],
         } for p in sorted_p])
-        st.dataframe(df_view, use_container_width=True,
+        st.dataframe(
+            df_view, use_container_width=True,
             column_config={
-                "url":       st.column_config.LinkColumn("link"),
-                "followers": st.column_config.NumberColumn(format="%d"),
-                "likes":     st.column_config.NumberColumn(format="%d"),
-                "videos":    st.column_config.NumberColumn(format="%d"),
-            }, hide_index=True)
+                "link":       st.column_config.LinkColumn("link"),
+                "followers":  st.column_config.NumberColumn(format="%d"),
+                "likes":      st.column_config.NumberColumn(format="%d"),
+                "videos":     st.column_config.NumberColumn(format="%d"),
+                "post views": st.column_config.NumberColumn(format="%d"),
+            },
+            hide_index=True,
+        )
 
+# ── Empty state ────────────────────────────────────────────────────────────────
 else:
     st.markdown("""
-    <div style="text-align:center;padding:80px 0 60px">
-      <div style="font-size:2.5rem;margin-bottom:14px">🎯</div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.85rem;color:#222;margin-bottom:10px">
-        READY TO SCOUT
-      </div>
-      <div style="font-size:0.8rem;color:#333;line-height:1.8;max-width:360px;margin:0 auto">
-        Pick a mode · Set follower filter · Add keywords<br>
-        Then hit <strong style="color:#fe2c55">Run Scraper</strong>
+    <div class="empty-state">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">READY TO SCOUT</div>
+      <div class="empty-hint">
+        Pick a search mode on the left<br>
+        Set follower range &amp; keyword filters<br>
+        Hit <strong style="color:#fe2c55">Run Scraper</strong> to discover creators
       </div>
     </div>
     """, unsafe_allow_html=True)
 
+    with st.expander("📖 Quick start guide"):
+        st.markdown("""
+**Search Modes**
+- **Hashtag** — scrape posts from specific hashtags (e.g. `beauty`, `skincare`)
+- **Profile usernames** — look up specific accounts directly
+- **Search query** — keyword-based post search (e.g. `beauty review indonesia`)
+
+**Filters**
+- **Follower range** — set min and max to target micro or macro influencers
+- **Min video views** — ensure the creator's posts actually get traction
+- **Keywords** — match words in bio or post captions to find niche creators
+- **Verified only** — toggle to show only verified accounts
+
+**Cost control tips**
+- Start with 50–100 videos per search to test results
+- Combine hashtag + keyword filters to get precise matches without fetching thousands of posts
+- Use the "Export CSV" button to save results for later
+        """)
+
+# ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown(f"""
-<div style="margin-top:3rem;padding-top:1rem;border-top:1px solid #111;
-    font-size:0.65rem;color:#222;font-family:'Space Mono',monospace;
-    display:flex;justify-content:space-between;">
-  <span>TT SCOUT</span><span>actor · {ACTOR_ID}</span>
+<div style="margin-top:3rem;padding-top:1rem;border-top:1px solid #0e0e0e;
+    font-size:0.6rem;color:#1e1e1e;font-family:'IBM Plex Mono',monospace;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px">
+  <span>TT●SCOUT</span>
+  <span>actor · {ACTOR_ID}</span>
 </div>
 """, unsafe_allow_html=True)
