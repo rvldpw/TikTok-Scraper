@@ -284,14 +284,92 @@ def parse_profile(item: dict) -> dict:
     }
 
 def run_scraper(api_token: str, run_input: dict) -> list:
-    try:
-        from apify_client import ApifyClient
-    except ImportError:
-        st.error("`apify-client` not installed. Run: `pip install apify-client`")
+    """
+    Uses Apify REST API directly — avoids apify_client SDK Pydantic
+    incompatibility with Python 3.14+.
+    """
+    import requests, time
+
+    BASE = "https://api.apify.com/v2"
+    HEADERS = {"Content-Type": "application/json"}
+    AUTH = {"token": api_token}
+
+    # 1. Start the actor run
+    resp = requests.post(
+        f"{BASE}/acts/{ACTOR_ID.replace('/', '~')}/runs",
+        params=AUTH,
+        headers=HEADERS,
+        json=run_input,
+        timeout=30,
+    )
+    if resp.status_code not in (200, 201):
+        st.error(f"Apify error {resp.status_code}: {resp.text[:300]}")
         return []
-    client = ApifyClient(api_token)
-    run    = client.actor(ACTOR_ID).call(run_input=run_input)
-    return list(client.dataset(run["defaultDatasetId"]).iterate_items())
+
+    run_data   = resp.json().get("data", {})
+    run_id     = run_data.get("id")
+    dataset_id = run_data.get("defaultDatasetId")
+
+    if not run_id:
+        st.error("Could not start Apify run. Check your API token.")
+        return []
+
+    # 2. Poll until run finishes
+    progress   = st.progress(0, text="Waiting for scraper to start…")
+    poll_count = 0
+    while True:
+        time.sleep(5)
+        poll_count += 1
+        status_resp = requests.get(
+            f"{BASE}/actor-runs/{run_id}",
+            params=AUTH,
+            timeout=15,
+        )
+        if status_resp.status_code != 200:
+            break
+        status = status_resp.json().get("data", {}).get("status", "")
+        pct    = min(90, poll_count * 5)
+        progress.progress(pct, text=f"Scraper running… ({status})")
+        if status in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
+            break
+        if poll_count > 120:          # 10-minute hard cap
+            st.warning("Timeout waiting for Apify run.")
+            break
+
+    progress.progress(100, text="Fetching results…")
+
+    if not dataset_id:
+        # Re-fetch run data to get dataset id (sometimes missing on first response)
+        run_info   = requests.get(f"{BASE}/actor-runs/{run_id}", params=AUTH, timeout=15)
+        dataset_id = run_info.json().get("data", {}).get("defaultDatasetId", "")
+
+    if not dataset_id:
+        st.error("Could not retrieve dataset from Apify run.")
+        return []
+
+    # 3. Download all items (paginated, 1 000 per page)
+    items, offset, limit = [], 0, 1000
+    while True:
+        items_resp = requests.get(
+            f"{BASE}/datasets/{dataset_id}/items",
+            params={**AUTH, "offset": offset, "limit": limit, "clean": "true"},
+            timeout=60,
+        )
+        if items_resp.status_code != 200:
+            break
+        batch = items_resp.json()
+        # Response is either a list or {"items": [...]}
+        if isinstance(batch, list):
+            page = batch
+        else:
+            page = batch.get("items", [])
+        items.extend(page)
+        if len(page) < limit:
+            break
+        offset += limit
+
+    progress.empty()
+    return items
 
 
 # ── Session state defaults ────────────────────────────────────────────────────
