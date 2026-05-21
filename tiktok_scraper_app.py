@@ -11,6 +11,16 @@ st.set_page_config(
 
 ACTOR_ID = "clockworks/tiktok-scraper"
 
+# ── Indonesia cities list ─────────────────────────────────────────────────────
+ID_CITIES = [
+    "Jakarta", "Surabaya", "Bandung", "Medan", "Bekasi", "Tangerang",
+    "Depok", "Semarang", "Palembang", "Makassar", "South Tangerang",
+    "Batam", "Pekanbaru", "Bandar Lampung", "Padang", "Malang",
+    "Bogor", "Pontianak", "Yogyakarta", "Denpasar (Bali)", "Balikpapan",
+    "Samarinda", "Jambi", "Manado", "Mataram", "Kupang",
+    "Ambon", "Jayapura", "Solo", "Cimahi", "Tasikmalaya",
+]
+
 # ── Custom CSS ──────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
@@ -261,10 +271,28 @@ def parse_profile(item: dict) -> dict:
     caption   = item.get("text") or item.get("desc") or ""
 
     # Video-level stats (for min views filter)
-    play_count  = int(item.get("playCount") or item.get("stats", {}).get("playCount") or 0)
-    like_count  = int(item.get("diggCount") or item.get("stats", {}).get("diggCount") or 0)
-    share_count = int(item.get("shareCount") or item.get("stats", {}).get("shareCount") or 0)
+    play_count    = int(item.get("playCount") or item.get("stats", {}).get("playCount") or 0)
+    like_count    = int(item.get("diggCount") or item.get("stats", {}).get("diggCount") or 0)
+    share_count   = int(item.get("shareCount") or item.get("stats", {}).get("shareCount") or 0)
     comment_count = int(item.get("commentCount") or item.get("stats", {}).get("commentCount") or 0)
+
+    # Location — TikTok API exposes region/country code and sometimes city
+    region = (
+        a.get("region") or a.get("country") or
+        item.get("authorRegion") or item.get("region") or
+        item.get("locationCreated") or ""
+    ).upper().strip()
+    city = (
+        a.get("city") or item.get("city") or item.get("authorCity") or ""
+    ).strip().title()
+    # Also try to detect Indonesia from bio keywords as fallback
+    bio_lower = bio.lower()
+    if not region:
+        id_hints = ["indonesia", "jakarta", "bandung", "surabaya", "medan",
+                    "bali", "yogyakarta", "semarang", "makassar", "depok",
+                    "tangerang", "bekasi", "bogor", "palembang", "malang"]
+        if any(h in bio_lower for h in id_hints):
+            region = "ID"
 
     return {
         "handle":        handle,
@@ -280,6 +308,8 @@ def parse_profile(item: dict) -> dict:
         "like_count":    like_count,
         "share_count":   share_count,
         "comment_count": comment_count,
+        "region":        region,
+        "city":          city,
         "url":           f"https://www.tiktok.com/@{handle}" if handle else "",
     }
 
@@ -466,6 +496,18 @@ with st.sidebar:
     keywords = [k.strip() for k in keywords_raw.split(",") if k.strip()] if keywords_raw else []
 
     st.markdown("---")
+
+    # ── Location Filter ───────────────────────────────────────────────────────
+    st.markdown('<div class="section-label">🇮🇩 Location Filter</div>', unsafe_allow_html=True)
+    filter_indonesia = st.checkbox("Indonesia only (region = ID)", value=True)
+    city_filter = st.multiselect(
+        "City (match in bio — select 0 for any)",
+        options=ID_CITIES,
+        default=[],
+        placeholder="All cities…",
+    )
+
+    st.markdown("---")
     run_btn = st.button("▶  Run Scraper")
 
 
@@ -558,6 +600,25 @@ if run_btn:
             return bool(kw_match(txt, keywords))
         filtered = [p for p in filtered if passes_kw(p)]
 
+    # Indonesia country filter
+    if filter_indonesia:
+        filtered = [p for p in filtered if p["region"] in ("ID", "INDONESIA") or
+                    p["region"] == "" and any(
+                        c.lower() in p["bio"].lower()
+                        for c in ["indonesia","jakarta","bandung","surabaya",
+                                  "bali","yogyakarta","medan","semarang",
+                                  "makassar","depok","tangerang","bekasi",
+                                  "bogor","palembang","malang","batam",
+                                  "pekanbaru","padang","pontianak","denpasar"]
+                    )]
+
+    # City filter — match city name in bio or city field
+    if city_filter:
+        def passes_city(p):
+            haystack = (p["bio"] + " " + p["city"]).lower()
+            return any(c.lower() in haystack for c in city_filter)
+        filtered = [p for p in filtered if passes_city(p)]
+
     st.session_state.profiles  = filtered
     st.session_state.raw_count = len(unique)
 
@@ -614,6 +675,8 @@ if profiles:
             "post_likes":    p["like_count"],
             "post_shares":   p["share_count"],
             "post_comments": p["comment_count"],
+            "region":        p["region"],
+            "city":          p["city"],
             "verified":      p["verified"],
             "url":           p["url"],
         } for p in profiles])
@@ -645,6 +708,13 @@ if profiles:
                 with col:
                     bio_txt  = p["bio"] or "<em style='color:#1e1e1e'>No bio</em>"
                     vbadge   = '<span class="verified-badge">✓ verified</span>' if p["verified"] else ""
+                    loc_parts = [x for x in [p["city"], p["region"]] if x]
+                    loc_str   = " · ".join(loc_parts) if loc_parts else ""
+                    loc_badge = (f'<span style="font-family:\'IBM Plex Mono\',monospace;'
+                                 f'font-size:0.6rem;color:#2a6a3a;background:rgba(37,212,100,0.08);'
+                                 f'border:1px solid rgba(37,212,100,0.2);padding:2px 6px;'
+                                 f'border-radius:2px;margin-left:6px">📍 {loc_str}</span>'
+                                 if loc_str else "")
                     tags_str = "".join(
                         f'<span class="kw-chip">{k}</span>'
                         for k in kw_match(p["bio"] + " " + p["caption"], keywords)
@@ -656,7 +726,7 @@ if profiles:
                     )
                     st.markdown(f"""
                     <div class="p-card">
-                      <div class="p-handle">@{p['handle']}{vbadge}</div>
+                      <div class="p-handle">@{p['handle']}{vbadge}{loc_badge}</div>
                       <div class="p-name">{p['nickname']}</div>
                       <div class="p-bio">{bio_txt}</div>
                       <div>{tags_str}</div>
@@ -698,6 +768,8 @@ if profiles:
             "likes":     p["likes"],
             "videos":    p["videos"],
             "post views":p["play_count"],
+            "region":    p["region"],
+            "city":      p["city"],
             "✓":         "✓" if p["verified"] else "",
             "bio":       (p["bio"] or "")[:60] + ("…" if len(p["bio"] or "") > 60 else ""),
             "link":      p["url"],
